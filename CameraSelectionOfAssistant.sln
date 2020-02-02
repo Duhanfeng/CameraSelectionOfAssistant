@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29709.97
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CameraSelectionOfAssistant", "CameraSelectionOfAssistant\CameraSelectionOfAssistant.csproj", "{C500C2E6-191B-4D85-B8A8-07348600C045}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C500C2E6-191B-4D85-B8A8-07348600C045}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C500C2E6-191B-4D85-B8A8-07348600C045}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C500C2E6-191B-4D85-B8A8-07348600C045}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C500C2E6-191B-4D85-B8A8-07348600C045}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {423D3FA1-96D7-44F9-994C-FAE944023327}
+	EndGlobalSection
+EndGlobal
