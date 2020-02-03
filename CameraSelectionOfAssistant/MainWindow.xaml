@@ -5,9 +5,156 @@
                  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                  xmlns:local="clr-namespace:CameraSelectionOfAssistant"
+                 xmlns:cal="http://www.caliburnproject.org"
                  mc:Ignorable="d"
-                 Title="相机选型助手" Height="450" Width="800">
-    <Grid>
-        
+                 d:DataContext="MainWindowViewModel"
+                 Title="相机选型助手" Height="800" Width="1200">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <DockPanel Grid.Row="0" Margin="0,10,0,0">
+            <TextBlock DockPanel.Dock="Top" Margin="10" FontSize="20" VerticalAlignment="Center">全部传感器</TextBlock>
+            <DataGrid ItemsSource="{Binding Sensors}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="传感器名" Width="Auto" Binding="{Binding Name}"/>
+                    <DataGridTextColumn Header="快门类型" Width="Auto" Binding="{Binding ShutterType}" />
+                    <DataGridTextColumn Header="靶面" Width="Auto" Binding="{Binding MaxImageCircle}" />
+                    <DataGridTextColumn Header="传感器尺寸(mm)" Width="Auto" Binding="{Binding SensorSize}" />
+                    <DataGridTextColumn Header="分辨率(pixel)" Width="Auto" Binding="{Binding ResolutionSize}" />
+                    <DataGridTextColumn Header="分辨率(pixel2)" Width="Auto" Binding="{Binding Resolution}" />
+                    <DataGridTextColumn Header="像素尺寸(um)" Width="Auto" Binding="{Binding PixelSize}" />
+                </DataGrid.Columns>
+            </DataGrid>
+        </DockPanel>
+        <DockPanel Grid.Row="1" Margin="0,10,0,0">
+            <TextBlock DockPanel.Dock="Top" Margin="10" FontSize="20" VerticalAlignment="Center">有效传感器</TextBlock>
+            <DataGrid ItemsSource="{Binding ValidSensors}"  AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="传感器名" Width="Auto" Binding="{Binding Name}"/>
+                    <DataGridTextColumn Header="快门类型" Width="Auto" Binding="{Binding ShutterType}" />
+                    <DataGridTextColumn Header="靶面" Width="Auto" Binding="{Binding MaxImageCircle}" />
+                    <DataGridTextColumn Header="传感器尺寸(mm)" Width="Auto" Binding="{Binding SensorSize}" />
+                    <DataGridTextColumn Header="分辨率(pixel)" Width="Auto" Binding="{Binding ResolutionSize}" />
+                    <DataGridTextColumn Header="分辨率(pixel2)" Width="Auto" Binding="{Binding Resolution}" />
+                    <DataGridTextColumn Header="像素尺寸(um)" Width="Auto" Binding="{Binding PixelSize}" />
+                </DataGrid.Columns>
+            </DataGrid>
+        </DockPanel>
+        <StackPanel Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" MinWidth="320" Margin="10">
+            <StackPanel Margin="0,10,0,0">
+                <TextBlock VerticalAlignment="Center" Margin="0,10,10,0">计算分辨率:</TextBlock>
+                <StackPanel Margin="20,0,0,0">
+                    <DockPanel Margin="0,10,0,0">
+                        <TextBlock DockPanel.Dock="Left" Margin="0,0,10,0" VerticalAlignment="Center" MinWidth="100">视野(mm)</TextBlock>
+                        <StackPanel DockPanel.Dock="Right" Margin="10,0,10,0" MinWidth="60"/>
+                        <TextBox Text="{Binding ViewLength2, StringFormat={}{0:0.###}, UpdateSourceTrigger=Explicit}" KeyDown="TextBox_KeyDown" LostFocus="TextBox_LostFocus" 
+                                 PreviewMouseDown="TextBox_PreviewMouseDown"
+                                 GotFocus="TextBox_GotFocus"/>
+                    </DockPanel>
+                    <DockPanel Margin="0,10,0,0">
+                        <TextBlock DockPanel.Dock="Left" Margin="0,0,10,0" VerticalAlignment="Center" MinWidth="100">精度(mm)</TextBlock>
+                        <StackPanel DockPanel.Dock="Right" Margin="10,0,10,0" MinWidth="60"/>
+                        <TextBox Text="{Binding Precision, StringFormat={}{0:0.###}, UpdateSourceTrigger=Explicit}" KeyDown="TextBox_KeyDown" LostFocus="TextBox_LostFocus"
+                                 PreviewMouseDown="TextBox_PreviewMouseDown"
+                                 GotFocus="TextBox_GotFocus"/>
+                    </DockPanel>
+                    <DockPanel Margin="0,10,0,0">
+                        <TextBlock DockPanel.Dock="Left" Margin="0,0,10,0" VerticalAlignment="Center" MinWidth="100">放大倍数</TextBlock>
+                        <StackPanel DockPanel.Dock="Right" Margin="10,0,10,0" MinWidth="60"/>
+                        <TextBox Text="{Binding Multiple, StringFormat={}{0:0.###}, UpdateSourceTrigger=Explicit}" KeyDown="TextBox_KeyDown" LostFocus="TextBox_LostFocus" 
+                                 PreviewMouseDown="TextBox_PreviewMouseDown"
+                                 GotFocus="TextBox_GotFocus"/>
+                    </DockPanel>
+                    <DockPanel Margin="0,10,0,0">
+                        <TextBlock DockPanel.Dock="Left" Margin="0,0,10,0" VerticalAlignment="Center" MinWidth="100">结果(pixel)</TextBlock>
+                        <Button cal:Message.Attach="CalculatePixel" DockPanel.Dock="Right" Margin="10,0,10,0" MinWidth="60">计算</Button>
+                        <TextBox Text="{Binding Pixel}" IsReadOnly="True"/>
+                    </DockPanel>
+                    <DockPanel Margin="0,10,0,0">
+                        <ComboBox SelectedIndex="{Binding SideIndex}" DockPanel.Dock="Left" Margin="0,0,10,0" VerticalAlignment="Center" MinWidth="100">
+                            <ComboBoxItem Content="短边(mm)"/>
+                            <ComboBoxItem Content="长边(mm)"/>
+                        </ComboBox>
+                        <Button cal:Message.Attach="Filter" DockPanel.Dock="Right" Margin="10,0,10,0" MinWidth="60">筛选</Button>
+                        <ComboBox SelectedIndex="{Binding ShutterTypeIndex}" VerticalAlignment="Center">
+                            <ComboBoxItem Content="卷帘"/>
+                            <ComboBoxItem Content="全局"/>
+                        </ComboBox>
+                    </DockPanel>
+                </StackPanel>
+            </StackPanel>
+            <StackPanel Margin="0,10,0,0">
+                <TextBlock VerticalAlignment="Center" Margin="0,10,10,0">计算:</TextBlock>
+                <StackPanel Margin="20,0,0,0">
+                    <DockPanel Margin="0,10,0,0">
+                        <TextBlock DockPanel.Dock="Left" Margin="0,0,10,0" VerticalAlignment="Center" MinWidth="100">传感器尺寸(mm)</TextBlock>
+                        <StackPanel DockPanel.Dock="Right" Margin="10,0,10,0" MinWidth="60"/>
+                        <TextBox Text="{Binding SensorLength, StringFormat={}{0:0.###}, UpdateSourceTrigger=Explicit}" KeyDown="TextBox_KeyDown" LostFocus="TextBox_LostFocus" PreviewMouseDown="TextBox_PreviewMouseDown"
+                                 GotFocus="TextBox_GotFocus"/>
+                    </DockPanel>
+                    <DockPanel Margin="0,10,0,0">
+                        <TextBlock DockPanel.Dock="Left" Margin="0,0,10,0" VerticalAlignment="Center" MinWidth="100">视野尺寸(mm)</TextBlock>
+                        <StackPanel DockPanel.Dock="Right" Margin="10,0,10,0" MinWidth="60"/>
+                        <TextBox Text="{Binding ViewLength, StringFormat={}{0:0.###}, UpdateSourceTrigger=Explicit}" KeyDown="TextBox_KeyDown" LostFocus="TextBox_LostFocus" PreviewMouseDown="TextBox_PreviewMouseDown"
+                                 GotFocus="TextBox_GotFocus"/>
+                    </DockPanel>
+                    <DockPanel Margin="0,10,0,0">
+                        <TextBlock DockPanel.Dock="Left" Margin="0,0,10,0" VerticalAlignment="Center" MinWidth="100">焦距(mm)</TextBlock>
+                        <StackPanel DockPanel.Dock="Right" Margin="10,0,10,0" MinWidth="60"/>
+                        <TextBox Text="{Binding Focus, StringFormat={}{0:0.###}, UpdateSourceTrigger=Explicit}" KeyDown="TextBox_KeyDown" LostFocus="TextBox_LostFocus" PreviewMouseDown="TextBox_PreviewMouseDown"
+                                 GotFocus="TextBox_GotFocus"/>
+                    </DockPanel>
+                    <DockPanel Margin="0,10,0,0">
+                        <TextBlock DockPanel.Dock="Left" Margin="0,0,10,0" VerticalAlignment="Center" MinWidth="100">工作距离(mm)</TextBlock>
+                        <StackPanel DockPanel.Dock="Right" Margin="10,0,10,0" MinWidth="60"/>
+                        <TextBox Text="{Binding Height, StringFormat={}{0:0.###}, UpdateSourceTrigger=Explicit}" KeyDown="TextBox_KeyDown" LostFocus="TextBox_LostFocus" PreviewMouseDown="TextBox_PreviewMouseDown"
+                                 GotFocus="TextBox_GotFocus"/>
+                    </DockPanel>
+                    <DockPanel Margin="0,10,0,0">
+                        <ComboBox SelectedIndex="{Binding CalculateTypeIndex}" DockPanel.Dock="Left" Margin="0,0,10,0" VerticalAlignment="Center" MinWidth="100">
+                            <ComboBoxItem Content="传感器尺寸"/>
+                            <ComboBoxItem Content="视野"/>
+                            <ComboBoxItem Content="焦距"/>
+                            <ComboBoxItem Content="工作距离"/>
+                        </ComboBox>
+                        <Button cal:Message.Attach="Calculate" DockPanel.Dock="Right" Margin="10,0,10,0" MinWidth="60">计算</Button>
+                        <TextBox Text="{Binding Result, StringFormat={}{0:0.###}}" IsReadOnly="True"/>
+                    </DockPanel>
+                </StackPanel>
+            </StackPanel>
+            <StackPanel Margin="0,10,0,0">
+                <TextBlock VerticalAlignment="Center" Margin="0,10,10,0">计算视野范围:</TextBlock>
+                <StackPanel Margin="20,0,0,0">
+                    <DockPanel Margin="0,10,0,0">
+                        <TextBlock DockPanel.Dock="Left" Margin="0,0,10,0" VerticalAlignment="Center" MinWidth="100">传感器</TextBlock>
+                        <StackPanel DockPanel.Dock="Right" Margin="10,0,10,0" MinWidth="60"/>
+                        <ComboBox ItemsSource="{Binding ValidSensors}" SelectedIndex="{Binding SensorIndex}"/>
+                    </DockPanel>
+                    <DockPanel Margin="0,10,0,0">
+                        <TextBlock DockPanel.Dock="Left" Margin="0,0,10,0" VerticalAlignment="Center" MinWidth="100">焦距(mm)</TextBlock>
+                        <StackPanel DockPanel.Dock="Right" Margin="10,0,10,0" MinWidth="60"/>
+                        <TextBox Text="{Binding Focus3, StringFormat={}{0:0.###}, UpdateSourceTrigger=Explicit}" KeyDown="TextBox_KeyDown" LostFocus="TextBox_LostFocus" PreviewMouseDown="TextBox_PreviewMouseDown"
+                                 GotFocus="TextBox_GotFocus"/>
+                    </DockPanel>
+                    <DockPanel Margin="0,10,0,0">
+                        <TextBlock DockPanel.Dock="Left" Margin="0,0,10,0" VerticalAlignment="Center" MinWidth="100">工作距离(mm)</TextBlock>
+                        <StackPanel DockPanel.Dock="Right" Margin="10,0,10,0" MinWidth="60"/>
+                        <TextBox Text="{Binding Height3, StringFormat={}{0:0.###}, UpdateSourceTrigger=Explicit}" KeyDown="TextBox_KeyDown" LostFocus="TextBox_LostFocus" PreviewMouseDown="TextBox_PreviewMouseDown"
+                                 GotFocus="TextBox_GotFocus"/>
+                    </DockPanel>
+                    <DockPanel Margin="0,10,0,0">
+                        <TextBlock DockPanel.Dock="Left" Margin="0,0,10,0" VerticalAlignment="Center" MinWidth="100">视野</TextBlock>
+                        <Button cal:Message.Attach="CalculateViewSize" DockPanel.Dock="Right" Margin="10,0,10,0" MinWidth="60">计算</Button>
+                        <TextBox Text="{Binding ViewSize}" IsReadOnly="True"/>
+                    </DockPanel>
+                </StackPanel>
+            </StackPanel>
+        </StackPanel>
     </Grid>
 </mah:MetroWindow>
